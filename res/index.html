@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Image Gallery</title>
+  <style>
+    /* Add your custom CSS styles here */
+  </style>
+  <script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
+</head>
+
+<body>
+  <h1>Image Gallery</h1>
+
+  <h2>Public Gallery</h2>
+  <div id="gallery">
+    <!-- Display the approved images here -->
+  </div>
+
+  <h2>Submit Image</h2>
+  <form id="submitForm" action="/submit" method="POST" enctype="multipart/form-data">
+    <input type="file" id="filImageUpload" name="image" accept="image/*" required>
+    <input type="text" id="txtImageTitle" name="title" placeholder="Image title" required>
+    <input type="submit" value="Submit">
+  </form>
+
+  <br>
+
+  <h2>From Gallery:</h2>
+  <form id="moderate-form" action="/moderate" method="POST">
+    <input type="hidden" name="imageId" value="">
+    <div id="moderate-image">
+
+      <style>
+        .gallerySample {
+          font-size: 2px;
+          color: #edf;
+          background-color: #102;
+          padding: 5px;
+          white-space: nowrap;
+          display: inline-block;
+
+        }
+      </style>
+
+      <div style="float: left;" id="gallerySample1" class="gallerySample"></div>
+      <div style="float: left;" id="gallerySample2" class="gallerySample"></div>
+      <script>
+        fetch('/gallery/all')
+          .then(response => response.json())
+          .then(data => {
+
+            function getRandomInt(min, max) { return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + min; }
+
+            let rng;
+
+            rng = getRandomInt(0, data.length - 1)
+            gallerySample1.innerText += `${data[rng].imagedata}`
+            rng = getRandomInt(0, data.length - 1)
+            gallerySample2.innerText += `${data[rng].imagedata}`
+
+
+          })
+          .catch(error => {
+            console.error(error);
+          });
+
+      </script>
+
+
+
+    </div>
+    <div>
+      <button id="approve-button" type="submit" name="action" value="approve">Approve</button>
+      <button id="deny-button" type="submit" name="action" value="deny">Deny</button>
+    </div>
+  </form>
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+
+
+
+
+
+    function readFileSyncAsBytes(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onload = function () {
+          const arrayBuffer = reader.result;
+          const bytes = new Uint8Array(arrayBuffer);
+          resolve(bytes);
+        }
+        reader.onerror = function () {
+          console.error('Error reading file.');
+          reject(null);
+        }
+      });
+    }
+
+
+    submitForm.addEventListener('submit', async (event) => {
+      // stops default page navigation
+      event.preventDefault();
+
+      // uploaded image file
+      const fil = filImageUpload.files[0];
+      console.log("fil:");
+      console.log(fil);
+
+
+
+      let imageData = await readFileSyncAsBytes(fil);
+      console.log("imageData:");
+      console.log(imageData);
+
+
+      // compress imgData
+      imageData =
+        await readFileSyncAsBytes(
+          await imageCompression(
+            fil,
+            {
+              maxSizeMB: 0.15,
+              maxWidthOrHeight: 800,
+              //fileType: "image/jpg"
+            }
+          )
+        );
+      console.log("imageData (compressed):");
+      console.log(imageData);
+
+      const image64 = btoa(String.fromCharCode.apply(null, imageData));
+      console.log("imageData (base64):");
+      console.log(image64);
+
+
+
+      const imgTitle = txtImageTitle.value;
+      console.log("imgTitle:");
+      console.log(imgTitle);
+
+      const formData = new FormData();
+      formData.append('imageData', fil);
+      formData.append('title', imgTitle);
+
+      const submitImage = async () => {
+
+
+        try {
+          const response = await fetch('/submit', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (response.ok) {
+            console.log('Image submitted successfully!');
+          } else {
+            console.log('Failed to submit image.');
+          }
+        } catch (error) {
+          console.error('An error occurred:', error);
+        }
+      };
+
+      submitImage();
+
+    });
+
+  </script>
+
+
+</body>
+
+</html>

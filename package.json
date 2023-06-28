@@ -1,0 +1,30 @@
+{
+  "name": "flamboyantknowndesigner",
+  "version": "1.0.0",
+  "description": "Every new repl comes with a `.replit` and a `replit.nix` file that let you configure your repl to do just about anything in any language!",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "bootstrapdb": "node runnables/bootstrapDB.js",
+    "testCompression": "node compression.js",
+    "drawing": "node drawing.js"
+  },
+  "author": "github/cheeseonamonkey",
+  "license": "POOP",
+  "dependencies": {
+    "base64-img": "^1.0.4",
+    "better-sqlite3": "^8.4.0",
+    "bitmap-to-braille": "^1.0.0",
+    "body-parser": "^1.20.2",
+    "braille": "^1.1.0",
+    "colors": "^1.4.0",
+    "compressjs": "^1.0.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "img2braille": "^1.0.1",
+    "jimp": "^0.22.8",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^2.0.20"
+  }
+}
