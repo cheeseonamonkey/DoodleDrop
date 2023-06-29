@@ -28,47 +28,57 @@
   <br>
 
   <h2>From Gallery:</h2>
+
+
+  <style>
+    .gallerySample {
+      font-size: 2px;
+      color: #edf;
+      background-color: #102;
+      padding: 5px;
+      white-space: nowrap;
+      display: inline-block;
+
+    }
+  </style>
+
+  <div style="float: left;" id="gallerySample1" class="gallerySample"></div>
+  <div style="float: left;" id="gallerySample2" class="gallerySample"></div>
+  <br><br>
+  <button id="randomFromGallery">(random from gallery)</button>
+  <script>
+
+    function setRandomGalleryImages() {
+      fetch('/gallery/all')
+        .then(response => response.json())
+        .then(data => {
+
+          function getRandomInt(min, max) { return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + min; }
+
+          let rng;
+
+          rng = getRandomInt(0, data.length - 1)
+          gallerySample1.innerText = `${data[rng].imageDecompressed}`
+          rng = getRandomInt(0, data.length - 1)
+          gallerySample2.innerText = `${data[rng].imageDecompressed}`
+
+
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+    setRandomGalleryImages();
+    randomFromGallery.addEventListener("click", (event => setRandomGalleryImages()))
+  </script>
+
+  <br><br>
+
+
+  <!--
   <form id="moderate-form" action="/moderate" method="POST">
     <input type="hidden" name="imageId" value="">
     <div id="moderate-image">
-
-      <style>
-        .gallerySample {
-          font-size: 2px;
-          color: #edf;
-          background-color: #102;
-          padding: 5px;
-          white-space: nowrap;
-          display: inline-block;
-
-        }
-      </style>
-
-      <div style="float: left;" id="gallerySample1" class="gallerySample"></div>
-      <div style="float: left;" id="gallerySample2" class="gallerySample"></div>
-      <script>
-        fetch('/gallery/all')
-          .then(response => response.json())
-          .then(data => {
-
-            function getRandomInt(min, max) { return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + min; }
-
-            let rng;
-
-            rng = getRandomInt(0, data.length - 1)
-            gallerySample1.innerText += `${data[rng].imagedata}`
-            rng = getRandomInt(0, data.length - 1)
-            gallerySample2.innerText += `${data[rng].imagedata}`
-
-
-          })
-          .catch(error => {
-            console.error(error);
-          });
-
-      </script>
-
-
 
     </div>
     <div>
@@ -77,7 +87,7 @@
     </div>
   </form>
 
-
+-->
 
 
 

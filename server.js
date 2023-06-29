@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const { compressStringToBytes, decompressBytesToString, bufferToDataURL } = require('./compression.js');
+const { compressStringToString64, decompressString64ToString, bufferToDataURL } = require('./compression.js');
 const { toBrailleImg, bufferToPath } = require('./drawing.js');
 
 const sqlite = require('better-sqlite3');
@@ -19,14 +19,12 @@ const db = sqlite('foobar.db');
 db.pragma('journal_mode = WAL');
 
 
-// takes the list of compressed images to decompress them
-/*
 function decompressImageData(images) {
 
   for (let i = 0; i < images.length; i++) {
     try {
       const imageData = images[i].imagedata;
-      const decompressedData = decompressBytesToString(imageData);
+      const decompressedData = decompressString64ToString(imageData);
       images[i].imageDecompressed = decompressedData;
 
     } catch (err) {
@@ -35,7 +33,7 @@ function decompressImageData(images) {
     }
   }
 }
-*/
+
 
 
 // Render HTML file
@@ -51,8 +49,8 @@ app.get('/gallery/all', function (req, res) {
 
 
 
-  // decompress the images from the db before sending
-  //decompressImageData(allImages)
+  // decompress all the images from the db before sending, add them to the object
+  decompressImageData(allImages)
 
   // Return the images as a response
   res.json(allImages);
@@ -83,11 +81,11 @@ app.post('/submit', upload.single('imageData'), async function (req, res) {
     const title = req.body.title;
     console.log(bufferToPath(imageData))
     const imageBraille = await toBrailleImg(bufferToPath(imageData), 250)
-    console.log("\nBRAILLE IMAGE: \n" + imageBraille.slice(0, 900) + "\n")
-    // (compression not inserted to db for now)
-    //const imageBrailleCompressed = compressStringToBytes(imageBraille)
-    //console.log(`\nBRAILLE IMAGE (${typeof (imageBrailleCompressed)}): \n` + imageBrailleCompressed.slice(0, 300) + "\n")
-    //console.log(imageBrailleCompressed)
+    console.log("\nBRAILLE IMAGE: \n" + imageBraille.slice(0, 1800) + "\n")
+
+    const imageBrailleCompressed = compressStringToString64(imageBraille)
+    console.log(`\nBRAILLE IMAGE compressed (${typeof (imageBrailleCompressed)}): \n` + imageBrailleCompressed.slice(0, 250) + "\n")
+    console.log(imageBrailleCompressed)
 
     //for logs:
     const ip = req.ip;
@@ -102,7 +100,7 @@ app.post('/submit', upload.single('imageData'), async function (req, res) {
     // image insertion:
 
     const imageInsertSmtp = db.prepare(`INSERT INTO images (imageData, log_id, title) ` +
-      `VALUES ('${imageBraille}', ${logId}, '${title}')`).run();
+      `VALUES ('${imageBrailleCompressed}', ${logId}, '${title}')`).run();
     const imageId = db.prepare(`SELECT last_insert_rowid() as 'lastID' `).all()[0].lastID; //get logId from another query
 
     console.log(`Inserted image row with ID: ${imageId}`);
