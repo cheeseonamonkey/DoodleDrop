@@ -44,6 +44,7 @@
 
   <div style="float: left;" id="gallerySample1" class="gallerySample"></div>
   <div style="float: left;" id="gallerySample2" class="gallerySample"></div>
+
   <br><br>
   <button id="randomFromGallery">(random from gallery)</button>
   <script>
@@ -58,9 +59,10 @@
           let rng;
 
           rng = getRandomInt(0, data.length - 1)
-          gallerySample1.innerText = `${data[rng].imageDecompressed}`
+          gallerySample1.innerText = gallerySample1.innerText + "\n\n---------------\n\n" + `${data[rng].imageDecompressed}`
+
           rng = getRandomInt(0, data.length - 1)
-          gallerySample2.innerText = `${data[rng].imageDecompressed}`
+          gallerySample2.innerText = gallerySample2.innerText + "\n\n---------------\n\n" + `${data[rng].imageDecompressed}`
 
 
         })
